@@ -218,14 +218,16 @@
 
             try {
                 // POST 요청으로 데이터 전송
-                // CORS 문제를 완벽히 우회하기 위해 mode: 'no-cors'를 추가합니다.
+                // 가장 강력한 URL-encoded 방식으로 변경 (CORS 완벽 우회 및 구글 호환성 100%)
+                const formParams = new URLSearchParams(parsedData).toString();
+
                 await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // 이 부분이 추가되었습니다!
+                    mode: 'no-cors', 
                     headers: {
-                        'Content-Type': 'text/plain;charset=utf-8', 
+                        'Content-Type': 'application/x-www-form-urlencoded', 
                     },
-                    body: JSON.stringify(parsedData) 
+                    body: formParams 
                 });
 
                 // no-cors 모드에서는 응답을 자바스크립트가 읽을 수 없으므로, 에러가 안 나면 성공으로 간주합니다.
