@@ -1,246 +1,397 @@
+
+</html>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>궁중수라간 식단표 자동 변환기</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#10B981', // 에메랄드 그린 (구글 시트 느낌)
-                        secondary: '#059669',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --green: #10B981;
+            --green-dark: #059669;
+            --blue: #3B82F6;
+            --blue-dark: #2563EB;
+            --red: #EF4444;
+            --bg: #F3F4F6;
+            --card: #FFFFFF;
+            --text: #1F2937;
+            --text-light: #6B7280;
+            --border: #E5E7EB;
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        /* ── 헤더 ── */
+        .header {
+            background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+            color: #fff;
+            padding: 20px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 12px rgba(16,185,129,0.3);
+        }
+        .header h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header p {
+            font-size: 0.78rem;
+            margin-top: 6px;
+            opacity: 0.9;
+        }
+
+        /* ── 컨테이너 ── */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* ── 카드 ── */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-header h2 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        .card-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* ── 스텝 뱃지 ── */
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--green);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        /* ── 지우기 버튼 ── */
+        .clear-btn {
+            background: none;
+            border: none;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .clear-btn:active { background: #FEE2E2; color: var(--red); }
+
+        /* ── 텍스트 입력 ── */
+        textarea {
+            width: 100%;
+            min-height: 180px;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 16px; /* 모바일 자동 확대 방지 */
+            line-height: 1.6;
+            resize: vertical;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+        }
+        textarea::placeholder { color: #C1C7CD; font-size: 0.82rem; }
+
+        /* ── 버튼 공통 ── */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-extract {
+            background: var(--blue);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+        }
+        .btn-extract:active { background: var(--blue-dark); }
+
+        .btn-send {
+            background: var(--green);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+        }
+        .btn-send:active { background: var(--green-dark); }
+
+        .btn-disabled {
+            background: #E5E7EB;
+            color: #9CA3AF;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .btn-disabled:active { transform: none; }
+
+        /* ── 미리보기 테이블 ── */
+        .preview-table { width: 100%; border-collapse: collapse; }
+        .preview-table tr { border-bottom: 1px solid var(--border); }
+        .preview-table tr:last-child { border-bottom: none; }
+        .preview-table td {
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            vertical-align: middle;
+        }
+        .preview-table .label-cell {
+            font-weight: 600;
+            color: var(--green-dark);
+            white-space: nowrap;
+            width: 70px;
+        }
+        .preview-table .value-cell {
+            color: var(--text);
+            word-break: break-all;
+        }
+        .empty-text { color: #D1D5DB; font-size: 0.75rem; }
+        .placeholder-row td {
+            text-align: center;
+            color: var(--text-light);
+            padding: 24px 12px;
+            font-size: 0.85rem;
+        }
+
+        /* ── 상태 메시지 ── */
+        .status {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: center;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+        .status.show { display: block; }
+        .status.success { background: #ECFDF5; color: #065F46; }
+        .status.error { background: #FEF2F2; color: #991B1B; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fa-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── 데스크탑 ── */
+        @media (min-width: 768px) {
+            .container {
+                padding: 24px;
+                flex-direction: row;
+                gap: 24px;
+                align-items: flex-start;
+            }
+            .card { flex: 1; }
+            .header { padding: 24px 32px; }
+            .header h1 { font-size: 1.5rem; }
+            textarea { min-height: 300px; }
+        }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen p-4 md:p-8">
+<body>
 
-    <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
-        <!-- 헤더 영역 -->
-        <div class="bg-primary text-white p-6">
-            <h1 class="text-2xl font-bold flex items-center gap-2">
-                <i class="fas fa-utensils"></i> 궁중수라간 식단표 자동 입력기
-            </h1>
-            <p class="text-sm mt-2 opacity-90">카카오톡 등에 올라온 식단표를 복사하여 아래에 붙여넣으세요.</p>
-        </div>
+    <div class="header">
+        <h1><i class="fas fa-utensils"></i> 궁중수라간 식단표 입력기</h1>
+        <p>카카오톡 식단표를 복사 → 붙여넣기 → 구글 시트로 전송</p>
+    </div>
 
-        <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            <!-- 왼쪽: 텍스트 입력 영역 -->
-            <div class="flex flex-col gap-4">
-                <label for="rawTextInput" class="font-bold text-gray-700 flex justify-between items-end">
-                    <span>1. 식단표 텍스트 붙여넣기</span>
-                    <button onclick="clearText()" class="text-xs text-gray-400 hover:text-red-500 transition-colors">
-                        <i class="fas fa-trash-alt"></i> 지우기
-                    </button>
-                </label>
-                <textarea id="rawTextInput" rows="12" 
-                    class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none font-mono text-sm"
+    <div class="container">
+
+        <!-- 카드1: 입력 -->
+        <div class="card">
+            <div class="card-header">
+                <h2><span class="step-badge">1</span>식단표 붙여넣기</h2>
+                <button class="clear-btn" onclick="clearText()">
+                    <i class="fas fa-trash-alt"></i> 지우기
+                </button>
+            </div>
+            <div class="card-body">
+                <textarea id="rawTextInput"
                     placeholder="예시:&#10;3/25 (수)&#10;&#10;3/26 (목) 도착&#10;기사식당달콤제육볶음&#10;&#10;닭곰탕&#10;&#10;· 소세지야채볶음&#10;· 건새우마늘쫑볶음&#10;· 우엉잡채&#10;· 취나물무침&#10;&#10;당근라페리코타 샐러드"></textarea>
-                
-                <button onclick="parseText()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md flex justify-center items-center gap-2">
+                <button class="btn btn-extract" onclick="parseText()">
                     <i class="fas fa-magic"></i> 데이터 추출하기
                 </button>
             </div>
+        </div>
 
-            <!-- 오른쪽: 추출 결과 및 전송 영역 -->
-            <div class="flex flex-col gap-4">
-                <label class="font-bold text-gray-700">2. 구글 시트 입력 미리보기</label>
-                
-                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 flex-grow overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <tbody id="previewTable" class="divide-y divide-gray-200">
-                            <!-- JS로 내용이 채워집니다 -->
-                            <tr><td class="py-2 text-gray-400 text-center" colspan="2">데이터를 추출하면 이곳에 미리보기가 표시됩니다.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- 알림 메시지 영역 -->
-                <div id="statusMessage" class="hidden text-sm p-3 rounded-lg text-center font-medium"></div>
-
-                <button id="sendBtn" onclick="sendToGoogleSheet()" disabled class="w-full bg-gray-300 text-gray-500 font-bold py-3 px-4 rounded-xl transition-colors flex justify-center items-center gap-2 cursor-not-allowed">
+        <!-- 카드2: 미리보기 & 전송 -->
+        <div class="card">
+            <div class="card-header">
+                <h2><span class="step-badge">2</span>미리보기 &amp; 전송</h2>
+            </div>
+            <div class="card-body">
+                <table class="preview-table">
+                    <tbody id="previewTable">
+                        <tr class="placeholder-row"><td colspan="2">데이터를 추출하면 여기에 표시됩니다</td></tr>
+                    </tbody>
+                </table>
+                <div id="statusMessage" class="status"></div>
+                <button id="sendBtn" class="btn btn-disabled" onclick="sendToGoogleSheet()" disabled>
                     <i class="fas fa-paper-plane"></i> 구글 시트로 전송
                 </button>
             </div>
-
         </div>
+
     </div>
 
     <script>
-        // 추출된 데이터를 저장할 전역 변수
         let parsedData = null;
 
-        // 텍스트 지우기
         function clearText() {
             document.getElementById('rawTextInput').value = '';
             document.getElementById('rawTextInput').focus();
         }
 
-        // 텍스트 파싱 로직 (핵심)
         function parseText() {
             const rawText = document.getElementById('rawTextInput').value;
-            if (!rawText.trim()) {
-                showStatus('텍스트를 입력해주세요.', 'error');
-                return;
-            }
+            if (!rawText.trim()) { showStatus('텍스트를 입력해주세요.', 'error'); return; }
 
-            // 빈 줄을 제거하고 양쪽 공백을 없앤 배열 생성
-            const lines = rawText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-
-            if (lines.length < 6) {
-                showStatus('입력된 텍스트가 양식에 맞지 않거나 너무 짧습니다.', 'error');
-                return;
-            }
+            const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            if (lines.length < 6) { showStatus('입력된 텍스트가 너무 짧습니다.', 'error'); return; }
 
             try {
-                // 데이터 매핑
-                // 배열 인덱스를 추적하며 데이터를 찾습니다.
-                let currentIndex = 0;
-                
-                // 1. 발송일 (보통 첫 줄)
-                const date = lines[currentIndex++];
-                
-                // 2. "도착"이 포함된 줄은 건너뜀 (예: "3/26 (목) 도착")
-                if (lines[currentIndex] && lines[currentIndex].includes('도착')) {
-                    currentIndex++;
-                }
+                let i = 0;
+                const date = lines[i++];
+                if (lines[i] && lines[i].includes('도착')) i++;
+                const main = lines[i++];
+                const soup = lines[i++];
 
-                // 3. 메인메뉴
-                const main = lines[currentIndex++];
-                
-                // 4. 국
-                const soup = lines[currentIndex++];
-
-                // 5. 반찬 1~4 (특수문자 '·', '-', '*' 등 제거)
                 const sides = [];
-                while (currentIndex < lines.length && sides.length < 4) {
-                    const currentLine = lines[currentIndex];
-                    // 샐러드라는 단어가 나오면 반찬 루프 종료
-                    if (currentLine.includes('샐러드')) break;
-                    
-                    // 앞에 붙은 특수문자 제거 후 저장
-                    sides.push(currentLine.replace(/^[·\-\*\s]+/, ''));
-                    currentIndex++;
+                while (i < lines.length && sides.length < 4) {
+                    if (lines[i].includes('샐러드')) break;
+                    sides.push(lines[i].replace(/^[·\-\*\s]+/, ''));
+                    i++;
                 }
+                let salad = i < lines.length ? lines[i++] : '';
 
-                // 6. 샐러드 (남은 줄 또는 '샐러드'가 포함된 줄)
-                let salad = '';
-                if (currentIndex < lines.length) {
-                    salad = lines[currentIndex++];
-                }
-
-                // 전역 변수에 저장 (구글 시트 전송용)
                 parsedData = {
-                    date: date,
-                    main: main,
-                    soup: soup,
-                    side1: sides[0] || '',
-                    side2: sides[1] || '',
-                    side3: sides[2] || '',
-                    side4: sides[3] || '',
-                    salad: salad
+                    date, main, soup,
+                    side1: sides[0] || '', side2: sides[1] || '',
+                    side3: sides[2] || '', side4: sides[3] || '',
+                    salad
                 };
 
                 renderPreview(parsedData);
-                showStatus('데이터 추출 성공!', 'success');
-                
-                // 전송 버튼 활성화
-                const sendBtn = document.getElementById('sendBtn');
-                sendBtn.disabled = false;
-                sendBtn.className = "w-full bg-primary hover:bg-secondary text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md flex justify-center items-center gap-2 cursor-pointer";
-
-            } catch (error) {
-                showStatus('텍스트 분석 중 오류가 발생했습니다. 양식을 확인해주세요.', 'error');
-                console.error(error);
+                showStatus('데이터 추출 완료!', 'success');
+                const btn = document.getElementById('sendBtn');
+                btn.disabled = false;
+                btn.className = 'btn btn-send';
+            } catch (err) {
+                showStatus('텍스트 분석 중 오류 발생', 'error');
+                console.error(err);
             }
         }
 
-        // 미리보기 테이블 렌더링
-        function renderPreview(data) {
-            const tbody = document.getElementById('previewTable');
-            
-            // 구글 시트의 열(A~H) 순서대로 렌더링
+        function renderPreview(d) {
             const rows = [
-                { label: 'A. 발송일', value: data.date },
-                { label: 'B. 메인메뉴', value: data.main },
-                { label: 'C. 국', value: data.soup },
-                { label: 'D. 반찬1', value: data.side1 },
-                { label: 'E. 반찬2', value: data.side2 },
-                { label: 'F. 반찬3', value: data.side3 },
-                { label: 'G. 반찬4', value: data.side4 },
-                { label: 'H. 샐러드', value: data.salad }
+                ['발송일', d.date], ['메인', d.main], ['국', d.soup],
+                ['반찬1', d.side1], ['반찬2', d.side2],
+                ['반찬3', d.side3], ['반찬4', d.side4],
+                ['샐러드', d.salad]
             ];
-
-            tbody.innerHTML = rows.map(row => `
-                <tr class="hover:bg-gray-100 transition-colors">
-                    <td class="py-2 px-3 font-semibold text-gray-700 w-1/3 border-b border-gray-200">${row.label}</td>
-                    <td class="py-2 px-3 text-gray-900 border-b border-gray-200">${row.value || '<span class="text-red-400 text-xs">(없음)</span>'}</td>
-                </tr>
-            `).join('');
+            document.getElementById('previewTable').innerHTML = rows.map(([l, v]) => `
+                <tr>
+                    <td class="label-cell">${l}</td>
+                    <td class="value-cell">${v || '<span class="empty-text">(없음)</span>'}</td>
+                </tr>`).join('');
         }
 
-        // 상태 메시지 표시
-        function showStatus(message, type) {
-            const statusEl = document.getElementById('statusMessage');
-            statusEl.textContent = message;
-            statusEl.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-blue-100', 'text-blue-700');
-            
-            if (type === 'error') {
-                statusEl.classList.add('bg-red-100', 'text-red-700');
-            } else if (type === 'success') {
-                statusEl.classList.add('bg-green-100', 'text-green-700');
-            } else {
-                statusEl.classList.add('bg-blue-100', 'text-blue-700');
-            }
+        function showStatus(msg, type) {
+            const el = document.getElementById('statusMessage');
+            el.textContent = msg;
+            el.className = 'status show ' + type;
+            if (type === 'success') setTimeout(() => el.className = 'status', 3000);
         }
 
-        // 구글 시트로 전송 (Apps Script Web App 연동)
         async function sendToGoogleSheet() {
             if (!parsedData) return;
-
-            // 전달해주신 웹앱 URL을 적용했습니다.
-            const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcM6A1my98g7FORN-hDewrhUjLsnjXjUtUBLhhIJjHbtlerScyse3MuEnS-xqXP7j6/exec';
-
+            const URL = 'https://script.google.com/macros/s/AKfycbxXHl1V2gv14A13jUACR3MFyg67ECRJUxW6r48ZyJnSjdu5OdCjFVOrHFWVlDMgttxYug/exec';
             const sendBtn = document.getElementById('sendBtn');
-            const originalBtnText = sendBtn.innerHTML;
+            const orig = sendBtn.innerHTML;
             sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 전송 중...';
             sendBtn.disabled = true;
 
             try {
-                // POST 요청으로 데이터 전송
-                // 가장 강력한 URL-encoded 방식으로 변경 (CORS 완벽 우회 및 구글 호환성 100%)
-                const formParams = new URLSearchParams(parsedData).toString();
-
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', 
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded', 
-                    },
-                    body: formParams 
+                await fetch(URL, {
+                    method: 'POST', mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(parsedData).toString()
                 });
-
-                // no-cors 모드에서는 응답을 자바스크립트가 읽을 수 없으므로, 에러가 안 나면 성공으로 간주합니다.
-                showStatus('전송 완료! 구글 시트의 맨 아랫줄을 확인해 보세요.', 'success');
-                clearText(); // 전송 성공 시 입력창 초기화
-                document.getElementById('previewTable').innerHTML = '<tr><td class="py-2 text-gray-400 text-center" colspan="2">다음 데이터를 입력해주세요.</td></tr>';
+                showStatus('전송 완료! 구글 시트를 확인해보세요.', 'success');
+                clearText();
+                document.getElementById('previewTable').innerHTML = '<tr class="placeholder-row"><td colspan="2">다음 데이터를 입력해주세요</td></tr>';
                 parsedData = null;
-            } catch (error) {
-                console.error('Error:', error);
-                showStatus('전송 실패: 네트워크 오류가 발생했습니다.', 'error');
+                sendBtn.className = 'btn btn-disabled';
+            } catch (err) {
+                console.error(err);
+                showStatus('전송 실패: 네트워크 오류', 'error');
             } finally {
-                sendBtn.innerHTML = originalBtnText;
-                if(parsedData) sendBtn.disabled = false;
+                sendBtn.innerHTML = orig;
+                if (parsedData) sendBtn.disabled = false;
             }
         }
     </script>
