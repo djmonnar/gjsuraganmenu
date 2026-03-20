@@ -145,7 +145,6 @@
     </div>
 
     <div class="container">
-        <!-- 카드1: 입력 -->
         <div class="card">
             <div class="card-header">
                 <h2><span class="step-badge">1</span>식단표 붙여넣기</h2>
@@ -158,7 +157,6 @@
             </div>
         </div>
 
-        <!-- 카드2: 미리보기 & 전송 -->
         <div class="card">
             <div class="card-header">
                 <h2><span class="step-badge">2</span>미리보기 &amp; 전송</h2>
@@ -177,14 +175,10 @@
         </div>
     </div>
 
-    <!--
-        ★ 핵심: 숨겨진 form + iframe 방식
-        fetch 대신 진짜 HTML form을 제출해서 리다이렉트/CORS 문제를 완전히 우회합니다.
-        iframe이 결과를 받아주기 때문에 현재 페이지가 이동하지도 않습니다.
-    -->
+    <!-- ★ 숨겨진 form + iframe (CORS 완전 우회) -->
     <iframe name="hiddenFrame" id="hiddenFrame" style="display:none;"></iframe>
     <form id="hiddenForm" method="POST" target="hiddenFrame"
-          action="https://script.google.com/macros/s/AKfycbxXHl1V2gv14A13jUACR3MFyg67ECRJUxW6r48ZyJnSjdu5OdCjFVOrHFWVlDMgttxYug/exec">
+          action="https://script.google.com/macros/s/AKfycbygG8iIZLz4dz4szDVI4dSfR_ktaHXck6nlT2yJDcGTAKvibGhfzHtHmstdDAo3ibQOPw/exec">
         <input type="hidden" name="date"  id="f_date">
         <input type="hidden" name="main"  id="f_main">
         <input type="hidden" name="soup"  id="f_soup">
@@ -264,7 +258,6 @@
             if (type === 'success') setTimeout(() => el.className = 'status', 3000);
         }
 
-        // ★ 숨겨진 form을 통해 전송 (fetch 대신)
         function sendToGoogleSheet() {
             if (!parsedData) return;
 
@@ -283,10 +276,9 @@
             document.getElementById('f_side4').value = parsedData.side4;
             document.getElementById('f_salad').value = parsedData.salad;
 
-            // form 제출 (iframe으로 전송되므로 페이지 이동 없음)
+            // form 제출
             document.getElementById('hiddenForm').submit();
 
-            // 2초 후 성공 처리 (iframe 응답을 읽을 수 없으므로 시간 기반)
             setTimeout(() => {
                 showStatus('전송 완료! 구글 시트를 확인해보세요.', 'success');
                 clearText();
