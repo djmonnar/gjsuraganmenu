@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>궁중수라간 식단표 자동 변환기</title>
+    <title>궁중수라간 식단표 자동 입력기</title>
+
+    <!-- ★ 파비콘 (브라우저 탭에 보이는 작은 아이콘) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍚</text></svg>">
+
+    <!-- ★ 카카오톡 / SNS 공유 시 썸네일 (Open Graph 메타태그) -->
+    <meta property="og:title" content="궁중수라간 식단표 입력기">
+    <meta property="og:description" content="카카오톡 식단표를 복사 → 붙여넣기 → 구글 시트로 자동 전송">
+    <meta property="og:type" content="website">
+    <!-- og:image는 인터넷에 올라간 이미지 URL을 넣어야 합니다 (아래는 예시) -->
+    <!-- <meta property="og:image" content="https://i.ibb.co/pBw8HjXR/Gemini-Generated-Image-myfy6ymyfy6ymyfy.png"> -->
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
@@ -175,7 +186,6 @@
         </div>
     </div>
 
-    <!-- ★ 숨겨진 form + iframe (CORS 완전 우회) -->
     <iframe name="hiddenFrame" id="hiddenFrame" style="display:none;"></iframe>
     <form id="hiddenForm" method="POST" target="hiddenFrame"
           action="https://script.google.com/macros/s/AKfycbygG8iIZLz4dz4szDVI4dSfR_ktaHXck6nlT2yJDcGTAKvibGhfzHtHmstdDAo3ibQOPw/exec">
@@ -266,7 +276,6 @@
             sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 전송 중...';
             sendBtn.disabled = true;
 
-            // hidden input에 값 채우기
             document.getElementById('f_date').value  = parsedData.date;
             document.getElementById('f_main').value  = parsedData.main;
             document.getElementById('f_soup').value  = parsedData.soup;
@@ -276,7 +285,6 @@
             document.getElementById('f_side4').value = parsedData.side4;
             document.getElementById('f_salad').value = parsedData.salad;
 
-            // form 제출
             document.getElementById('hiddenForm').submit();
 
             setTimeout(() => {
