@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>궁중수라간 식단표 자동 변환기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10B981', // 에메랄드 그린 (구글 시트 느낌)
+                        secondary: '#059669',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+        <!-- 헤더 영역 -->
+        <div class="bg-primary text-white p-6">
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                <i class="fas fa-utensils"></i> 궁중수라간 식단표 자동 입력기
+            </h1>
+            <p class="text-sm mt-2 opacity-90">카카오톡 등에 올라온 식단표를 복사하여 아래에 붙여넣으세요.</p>
+        </div>
+
+        <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- 왼쪽: 텍스트 입력 영역 -->
+            <div class="flex flex-col gap-4">
+                <label for="rawTextInput" class="font-bold text-gray-700 flex justify-between items-end">
+                    <span>1. 식단표 텍스트 붙여넣기</span>
+                    <button onclick="clearText()" class="text-xs text-gray-400 hover:text-red-500 transition-colors">
+                        <i class="fas fa-trash-alt"></i> 지우기
+                    </button>
+                </label>
+                <textarea id="rawTextInput" rows="12" 
+                    class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none font-mono text-sm"
+                    placeholder="예시:&#10;3/25 (수)&#10;&#10;3/26 (목) 도착&#10;기사식당달콤제육볶음&#10;&#10;닭곰탕&#10;&#10;· 소세지야채볶음&#10;· 건새우마늘쫑볶음&#10;· 우엉잡채&#10;· 취나물무침&#10;&#10;당근라페리코타 샐러드"></textarea>
+                
+                <button onclick="parseText()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md flex justify-center items-center gap-2">
+                    <i class="fas fa-magic"></i> 데이터 추출하기
+                </button>
+            </div>
+
+            <!-- 오른쪽: 추출 결과 및 전송 영역 -->
+            <div class="flex flex-col gap-4">
+                <label class="font-bold text-gray-700">2. 구글 시트 입력 미리보기</label>
+                
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 flex-grow overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <tbody id="previewTable" class="divide-y divide-gray-200">
+                            <!-- JS로 내용이 채워집니다 -->
+                            <tr><td class="py-2 text-gray-400 text-center" colspan="2">데이터를 추출하면 이곳에 미리보기가 표시됩니다.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 알림 메시지 영역 -->
+                <div id="statusMessage" class="hidden text-sm p-3 rounded-lg text-center font-medium"></div>
+
+                <button id="sendBtn" onclick="sendToGoogleSheet()" disabled class="w-full bg-gray-300 text-gray-500 font-bold py-3 px-4 rounded-xl transition-colors flex justify-center items-center gap-2 cursor-not-allowed">
+                    <i class="fas fa-paper-plane"></i> 구글 시트로 전송
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 추출된 데이터를 저장할 전역 변수
+        let parsedData = null;
+
+        // 텍스트 지우기
+        function clearText() {
+            document.getElementById('rawTextInput').value = '';
+            document.getElementById('rawTextInput').focus();
+        }
+
+        // 텍스트 파싱 로직 (핵심)
+        function parseText() {
+            const rawText = document.getElementById('rawTextInput').value;
+            if (!rawText.trim()) {
+                showStatus('텍스트를 입력해주세요.', 'error');
+                return;
+            }
+
+            // 빈 줄을 제거하고 양쪽 공백을 없앤 배열 생성
+            const lines = rawText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+            if (lines.length < 6) {
+                showStatus('입력된 텍스트가 양식에 맞지 않거나 너무 짧습니다.', 'error');
+                return;
+            }
+
+            try {
+                // 데이터 매핑
+                // 배열 인덱스를 추적하며 데이터를 찾습니다.
+                let currentIndex = 0;
+                
+                // 1. 발송일 (보통 첫 줄)
+                const date = lines[currentIndex++];
+                
+                // 2. "도착"이 포함된 줄은 건너뜀 (예: "3/26 (목) 도착")
+                if (lines[currentIndex] && lines[currentIndex].includes('도착')) {
+                    currentIndex++;
+                }
+
+                // 3. 메인메뉴
+                const main = lines[currentIndex++];
+                
+                // 4. 국
+                const soup = lines[currentIndex++];
+
+                // 5. 반찬 1~4 (특수문자 '·', '-', '*' 등 제거)
+                const sides = [];
+                while (currentIndex < lines.length && sides.length < 4) {
+                    const currentLine = lines[currentIndex];
+                    // 샐러드라는 단어가 나오면 반찬 루프 종료
+                    if (currentLine.includes('샐러드')) break;
+                    
+                    // 앞에 붙은 특수문자 제거 후 저장
+                    sides.push(currentLine.replace(/^[·\-\*\s]+/, ''));
+                    currentIndex++;
+                }
+
+                // 6. 샐러드 (남은 줄 또는 '샐러드'가 포함된 줄)
+                let salad = '';
+                if (currentIndex < lines.length) {
+                    salad = lines[currentIndex++];
+                }
+
+                // 전역 변수에 저장 (구글 시트 전송용)
+                parsedData = {
+                    date: date,
+                    main: main,
+                    soup: soup,
+                    side1: sides[0] || '',
+                    side2: sides[1] || '',
+                    side3: sides[2] || '',
+                    side4: sides[3] || '',
+                    salad: salad
+                };
+
+                renderPreview(parsedData);
+                showStatus('데이터 추출 성공!', 'success');
+                
+                // 전송 버튼 활성화
+                const sendBtn = document.getElementById('sendBtn');
+                sendBtn.disabled = false;
+                sendBtn.className = "w-full bg-primary hover:bg-secondary text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md flex justify-center items-center gap-2 cursor-pointer";
+
+            } catch (error) {
+                showStatus('텍스트 분석 중 오류가 발생했습니다. 양식을 확인해주세요.', 'error');
+                console.error(error);
+            }
+        }
+
+        // 미리보기 테이블 렌더링
+        function renderPreview(data) {
+            const tbody = document.getElementById('previewTable');
+            
+            // 구글 시트의 열(A~H) 순서대로 렌더링
+            const rows = [
+                { label: 'A. 발송일', value: data.date },
+                { label: 'B. 메인메뉴', value: data.main },
+                { label: 'C. 국', value: data.soup },
+                { label: 'D. 반찬1', value: data.side1 },
+                { label: 'E. 반찬2', value: data.side2 },
+                { label: 'F. 반찬3', value: data.side3 },
+                { label: 'G. 반찬4', value: data.side4 },
+                { label: 'H. 샐러드', value: data.salad }
+            ];
+
+            tbody.innerHTML = rows.map(row => `
+                <tr class="hover:bg-gray-100 transition-colors">
+                    <td class="py-2 px-3 font-semibold text-gray-700 w-1/3 border-b border-gray-200">${row.label}</td>
+                    <td class="py-2 px-3 text-gray-900 border-b border-gray-200">${row.value || '<span class="text-red-400 text-xs">(없음)</span>'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // 상태 메시지 표시
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-blue-100', 'text-blue-700');
+            
+            if (type === 'error') {
+                statusEl.classList.add('bg-red-100', 'text-red-700');
+            } else if (type === 'success') {
+                statusEl.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                statusEl.classList.add('bg-blue-100', 'text-blue-700');
+            }
+        }
+
+        // 구글 시트로 전송 (Apps Script Web App 연동)
+        async function sendToGoogleSheet() {
+            if (!parsedData) return;
+
+            // 전달해주신 웹앱 URL을 적용했습니다.
+            const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcM6A1my98g7FORN-hDewrhUjLsnjXjUtUBLhhIJjHbtlerScyse3MuEnS-xqXP7j6/exec';
+
+            const sendBtn = document.getElementById('sendBtn');
+            const originalBtnText = sendBtn.innerHTML;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 전송 중...';
+            sendBtn.disabled = true;
+
+            try {
+                // POST 요청으로 데이터 전송
+                // CORS 문제를 완벽히 우회하기 위해 mode: 'no-cors'를 추가합니다.
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // 이 부분이 추가되었습니다!
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8', 
+                    },
+                    body: JSON.stringify(parsedData) 
+                });
+
+                // no-cors 모드에서는 응답을 자바스크립트가 읽을 수 없으므로, 에러가 안 나면 성공으로 간주합니다.
+                showStatus('전송 완료! 구글 시트의 맨 아랫줄을 확인해 보세요.', 'success');
+                clearText(); // 전송 성공 시 입력창 초기화
+                document.getElementById('previewTable').innerHTML = '<tr><td class="py-2 text-gray-400 text-center" colspan="2">다음 데이터를 입력해주세요.</td></tr>';
+                parsedData = null;
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('전송 실패: 네트워크 오류가 발생했습니다.', 'error');
+            } finally {
+                sendBtn.innerHTML = originalBtnText;
+                if(parsedData) sendBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
