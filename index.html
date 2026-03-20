@@ -1,5 +1,3 @@
-
-</html>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -34,7 +32,6 @@
             min-height: 100dvh;
         }
 
-        /* ── 헤더 ── */
         .header {
             background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
             color: #fff;
@@ -44,20 +41,9 @@
             z-index: 10;
             box-shadow: 0 2px 12px rgba(16,185,129,0.3);
         }
-        .header h1 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .header p {
-            font-size: 0.78rem;
-            margin-top: 6px;
-            opacity: 0.9;
-        }
+        .header h1 { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .header p { font-size: 0.78rem; margin-top: 6px; opacity: 0.9; }
 
-        /* ── 컨테이너 ── */
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -67,7 +53,6 @@
             gap: 16px;
         }
 
-        /* ── 카드 ── */
         .card {
             background: var(--card);
             border-radius: var(--radius);
@@ -81,170 +66,70 @@
             padding: 14px 16px;
             border-bottom: 1px solid var(--border);
         }
-        .card-header h2 {
-            font-size: 0.9rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-        }
-        .card-body {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        .card-header h2 { font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; }
+        .card-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 
-        /* ── 스텝 뱃지 ── */
         .step-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: var(--green);
-            color: #fff;
-            font-size: 0.7rem;
-            font-weight: 700;
-            margin-right: 8px;
-            flex-shrink: 0;
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px; border-radius: 50%;
+            background: var(--green); color: #fff;
+            font-size: 0.7rem; font-weight: 700; margin-right: 8px; flex-shrink: 0;
         }
 
-        /* ── 지우기 버튼 ── */
         .clear-btn {
-            background: none;
-            border: none;
-            font-size: 0.75rem;
-            color: var(--text-light);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 6px 10px;
-            border-radius: 8px;
-            transition: all 0.2s;
+            background: none; border: none; font-size: 0.75rem;
+            color: var(--text-light); cursor: pointer;
+            display: flex; align-items: center; gap: 4px;
+            padding: 6px 10px; border-radius: 8px; transition: all 0.2s;
         }
         .clear-btn:active { background: #FEE2E2; color: var(--red); }
 
-        /* ── 텍스트 입력 ── */
         textarea {
-            width: 100%;
-            min-height: 180px;
-            padding: 14px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-family: inherit;
-            font-size: 16px; /* 모바일 자동 확대 방지 */
-            line-height: 1.6;
-            resize: vertical;
-            transition: border-color 0.2s;
-            -webkit-appearance: none;
+            width: 100%; min-height: 180px; padding: 14px;
+            border: 2px solid var(--border); border-radius: 12px;
+            font-family: inherit; font-size: 16px; line-height: 1.6;
+            resize: vertical; transition: border-color 0.2s; -webkit-appearance: none;
         }
-        textarea:focus {
-            outline: none;
-            border-color: var(--green);
-            box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
-        }
+        textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
         textarea::placeholder { color: #C1C7CD; font-size: 0.82rem; }
 
-        /* ── 버튼 공통 ── */
         .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.15s;
-            -webkit-tap-highlight-color: transparent;
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            font-family: inherit; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            gap: 8px; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
         }
         .btn:active { transform: scale(0.97); }
-
-        .btn-extract {
-            background: var(--blue);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(59,130,246,0.3);
-        }
+        .btn-extract { background: var(--blue); color: #fff; box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
         .btn-extract:active { background: var(--blue-dark); }
-
-        .btn-send {
-            background: var(--green);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(16,185,129,0.3);
-        }
+        .btn-send { background: var(--green); color: #fff; box-shadow: 0 2px 8px rgba(16,185,129,0.3); }
         .btn-send:active { background: var(--green-dark); }
-
-        .btn-disabled {
-            background: #E5E7EB;
-            color: #9CA3AF;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+        .btn-disabled { background: #E5E7EB; color: #9CA3AF; cursor: not-allowed; box-shadow: none; }
         .btn-disabled:active { transform: none; }
 
-        /* ── 미리보기 테이블 ── */
         .preview-table { width: 100%; border-collapse: collapse; }
         .preview-table tr { border-bottom: 1px solid var(--border); }
         .preview-table tr:last-child { border-bottom: none; }
-        .preview-table td {
-            padding: 10px 12px;
-            font-size: 0.85rem;
-            vertical-align: middle;
-        }
-        .preview-table .label-cell {
-            font-weight: 600;
-            color: var(--green-dark);
-            white-space: nowrap;
-            width: 70px;
-        }
-        .preview-table .value-cell {
-            color: var(--text);
-            word-break: break-all;
-        }
+        .preview-table td { padding: 10px 12px; font-size: 0.85rem; vertical-align: middle; }
+        .preview-table .label-cell { font-weight: 600; color: var(--green-dark); white-space: nowrap; width: 70px; }
+        .preview-table .value-cell { color: var(--text); word-break: break-all; }
         .empty-text { color: #D1D5DB; font-size: 0.75rem; }
-        .placeholder-row td {
-            text-align: center;
-            color: var(--text-light);
-            padding: 24px 12px;
-            font-size: 0.85rem;
-        }
+        .placeholder-row td { text-align: center; color: var(--text-light); padding: 24px 12px; font-size: 0.85rem; }
 
-        /* ── 상태 메시지 ── */
         .status {
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            text-align: center;
-            display: none;
-            animation: slideUp 0.3s ease;
+            padding: 12px 16px; border-radius: 12px; font-size: 0.85rem;
+            font-weight: 500; text-align: center; display: none; animation: slideUp 0.3s ease;
         }
         .status.show { display: block; }
         .status.success { background: #ECFDF5; color: #065F46; }
         .status.error { background: #FEF2F2; color: #991B1B; }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .fa-spin { animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── 데스크탑 ── */
         @media (min-width: 768px) {
-            .container {
-                padding: 24px;
-                flex-direction: row;
-                gap: 24px;
-                align-items: flex-start;
-            }
+            .container { padding: 24px; flex-direction: row; gap: 24px; align-items: flex-start; }
             .card { flex: 1; }
             .header { padding: 24px 32px; }
             .header h1 { font-size: 1.5rem; }
@@ -260,21 +145,16 @@
     </div>
 
     <div class="container">
-
         <!-- 카드1: 입력 -->
         <div class="card">
             <div class="card-header">
                 <h2><span class="step-badge">1</span>식단표 붙여넣기</h2>
-                <button class="clear-btn" onclick="clearText()">
-                    <i class="fas fa-trash-alt"></i> 지우기
-                </button>
+                <button class="clear-btn" onclick="clearText()"><i class="fas fa-trash-alt"></i> 지우기</button>
             </div>
             <div class="card-body">
                 <textarea id="rawTextInput"
                     placeholder="예시:&#10;3/25 (수)&#10;&#10;3/26 (목) 도착&#10;기사식당달콤제육볶음&#10;&#10;닭곰탕&#10;&#10;· 소세지야채볶음&#10;· 건새우마늘쫑볶음&#10;· 우엉잡채&#10;· 취나물무침&#10;&#10;당근라페리코타 샐러드"></textarea>
-                <button class="btn btn-extract" onclick="parseText()">
-                    <i class="fas fa-magic"></i> 데이터 추출하기
-                </button>
+                <button class="btn btn-extract" onclick="parseText()"><i class="fas fa-magic"></i> 데이터 추출하기</button>
             </div>
         </div>
 
@@ -295,8 +175,25 @@
                 </button>
             </div>
         </div>
-
     </div>
+
+    <!--
+        ★ 핵심: 숨겨진 form + iframe 방식
+        fetch 대신 진짜 HTML form을 제출해서 리다이렉트/CORS 문제를 완전히 우회합니다.
+        iframe이 결과를 받아주기 때문에 현재 페이지가 이동하지도 않습니다.
+    -->
+    <iframe name="hiddenFrame" id="hiddenFrame" style="display:none;"></iframe>
+    <form id="hiddenForm" method="POST" target="hiddenFrame"
+          action="https://script.google.com/macros/s/AKfycbxXHl1V2gv14A13jUACR3MFyg67ECRJUxW6r48ZyJnSjdu5OdCjFVOrHFWVlDMgttxYug/exec">
+        <input type="hidden" name="date"  id="f_date">
+        <input type="hidden" name="main"  id="f_main">
+        <input type="hidden" name="soup"  id="f_soup">
+        <input type="hidden" name="side1" id="f_side1">
+        <input type="hidden" name="side2" id="f_side2">
+        <input type="hidden" name="side3" id="f_side3">
+        <input type="hidden" name="side4" id="f_side4">
+        <input type="hidden" name="salad" id="f_salad">
+    </form>
 
     <script>
         let parsedData = null;
@@ -367,32 +264,38 @@
             if (type === 'success') setTimeout(() => el.className = 'status', 3000);
         }
 
-        async function sendToGoogleSheet() {
+        // ★ 숨겨진 form을 통해 전송 (fetch 대신)
+        function sendToGoogleSheet() {
             if (!parsedData) return;
-            const URL = 'https://script.google.com/macros/s/AKfycbxXHl1V2gv14A13jUACR3MFyg67ECRJUxW6r48ZyJnSjdu5OdCjFVOrHFWVlDMgttxYug/exec';
+
             const sendBtn = document.getElementById('sendBtn');
             const orig = sendBtn.innerHTML;
             sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 전송 중...';
             sendBtn.disabled = true;
 
-            try {
-                await fetch(URL, {
-                    method: 'POST', mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams(parsedData).toString()
-                });
+            // hidden input에 값 채우기
+            document.getElementById('f_date').value  = parsedData.date;
+            document.getElementById('f_main').value  = parsedData.main;
+            document.getElementById('f_soup').value  = parsedData.soup;
+            document.getElementById('f_side1').value = parsedData.side1;
+            document.getElementById('f_side2').value = parsedData.side2;
+            document.getElementById('f_side3').value = parsedData.side3;
+            document.getElementById('f_side4').value = parsedData.side4;
+            document.getElementById('f_salad').value = parsedData.salad;
+
+            // form 제출 (iframe으로 전송되므로 페이지 이동 없음)
+            document.getElementById('hiddenForm').submit();
+
+            // 2초 후 성공 처리 (iframe 응답을 읽을 수 없으므로 시간 기반)
+            setTimeout(() => {
                 showStatus('전송 완료! 구글 시트를 확인해보세요.', 'success');
                 clearText();
                 document.getElementById('previewTable').innerHTML = '<tr class="placeholder-row"><td colspan="2">다음 데이터를 입력해주세요</td></tr>';
                 parsedData = null;
-                sendBtn.className = 'btn btn-disabled';
-            } catch (err) {
-                console.error(err);
-                showStatus('전송 실패: 네트워크 오류', 'error');
-            } finally {
                 sendBtn.innerHTML = orig;
-                if (parsedData) sendBtn.disabled = false;
-            }
+                sendBtn.className = 'btn btn-disabled';
+                sendBtn.disabled = true;
+            }, 2000);
         }
     </script>
 </body>
