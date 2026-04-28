@@ -453,10 +453,16 @@
                 fd.append('salad', data.salad);
 
                 try {
-                    await fetch(SCRIPT_URL, { method: 'POST', body: fd, mode: 'no-cors' });
-                    await new Promise(r => setTimeout(r, 800));
-                    setDayStatus(idx, 'done');
-                    successCount++;
+                    const res  = await fetch(SCRIPT_URL, { method: 'POST', body: fd });
+                    const json = await res.json();
+                    if (json.status === 'success') {
+                        setDayStatus(idx, 'done');
+                        successCount++;
+                    } else {
+                        setDayStatus(idx, 'error');
+                        errorCount++;
+                        console.error(`Day ${idx + 1} 서버 오류:`, json.message);
+                    }
                 } catch (err) {
                     setDayStatus(idx, 'error');
                     errorCount++;
