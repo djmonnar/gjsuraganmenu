@@ -270,10 +270,17 @@
             document.getElementById('rawTextInput').focus();
         }
 
+        /* ── 유틸 ── */
+
+        function escHtml(str) {
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
         /* ── 파싱 ── */
 
+        // 괄호 안을 요일 한 글자로만 제한해 음식명 등과 혼동 방지
         function isDateLine(line) {
-            return /^\d+\/\d+\s*\(.+\)/.test(line) && !line.includes('도착');
+            return /^\d{1,2}\/\d{1,2}\s*\([월화수목금토일]\)/.test(line);
         }
 
         function splitIntoBlocks(lines) {
@@ -304,6 +311,8 @@
                 sides.push(line.replace(/^[·\-\*\s]+/, ''));
                 i++;
             }
+            // 반찬이 4개 초과인 경우 남은 bullet 줄을 건너뜀
+            while (i < blockLines.length && /^[·\-\*]/.test(blockLines[i])) i++;
             const salad = i < blockLines.length ? blockLines[i] : '';
             return {
                 date, main, soup,
@@ -373,8 +382,8 @@
                 ];
                 const tableRows = fields.map(([l, v]) => `
                     <tr>
-                        <td class="label-cell">${l}</td>
-                        <td class="value-cell">${v || '<span class="empty-text">(없음)</span>'}</td>
+                        <td class="label-cell">${escHtml(l)}</td>
+                        <td class="value-cell">${v ? escHtml(v) : '<span class="empty-text">(없음)</span>'}</td>
                     </tr>`).join('');
 
                 const dayCard = document.createElement('div');
@@ -384,7 +393,7 @@
                     <div class="day-card-header">
                         <div class="day-card-title">
                             <span class="day-num">${idx + 1}</span>
-                            ${data.date}
+                            ${escHtml(data.date)}
                         </div>
                         <span class="status-badge badge-pending" id="badge-${idx}">대기중</span>
                     </div>
