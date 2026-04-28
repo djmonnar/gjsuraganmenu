@@ -278,9 +278,9 @@
 
         /* ── 파싱 ── */
 
-        // 괄호 안을 요일 한 글자로만 제한해 음식명 등과 혼동 방지
+        // 괄호 안을 요일 한 글자로 한정 + "도착" 줄 제외 (배송일과 주문일 구분)
         function isDateLine(line) {
-            return /^\d{1,2}\/\d{1,2}\s*\([월화수목금토일]\)/.test(line);
+            return /^\d{1,2}\/\d{1,2}\s*\([월화수목금토일]\)/.test(line) && !line.includes('도착');
         }
 
         function splitIntoBlocks(lines) {
