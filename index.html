@@ -298,6 +298,14 @@
             return blocks;
         }
 
+        function isClosedDayBlock(blockLines) {
+            return /휴무|운영하지\s*않습니다|식단을\s*운영하지\s*않습니다|공휴일/.test(blockLines.join(' '));
+        }
+
+        function looksLikeMenuBlock(blockLines) {
+            return blockLines.length >= 5 && blockLines.some(line => /^[·\-\*]/.test(line));
+        }
+
         function parseBlock(blockLines) {
             let i = 0;
             const date = blockLines[i++] || '';
@@ -329,18 +337,16 @@
 
             const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
             const blocks = splitIntoBlocks(lines);
+            const menuBlocks = blocks.filter(block => !isClosedDayBlock(block) && looksLikeMenuBlock(block));
+            const skippedCount = blocks.length - menuBlocks.length;
 
-            if (blocks.length === 0) { showInputStatus('입력된 텍스트가 너무 짧습니다.', 'error'); return; }
+            if (menuBlocks.length === 0) { showInputStatus('전송할 식단을 찾지 못했습니다.', 'error'); return; }
 
             try {
-                parsedDataList = blocks.map(parseBlock);
+                parsedDataList = menuBlocks.map(parseBlock);
                 renderAllPreviews();
-                showInputStatus(
-                    parsedDataList.length === 1
-                        ? '1개 식단 추출 완료!'
-                        : `${parsedDataList.length}개 식단 추출 완료!`,
-                    'success'
-                );
+                const skippedMessage = skippedCount > 0 ? ` (휴무/비식단 ${skippedCount}개 제외)` : '';
+                showInputStatus(`${parsedDataList.length}개 식단 추출 완료!${skippedMessage}`, 'success');
             } catch (err) {
                 showInputStatus('텍스트 분석 중 오류가 발생했습니다.', 'error');
                 console.error(err);
