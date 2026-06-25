@@ -408,12 +408,13 @@
             });
         }
 
-        function setDayStatus(idx, status) {
+        function setDayStatus(idx, status, message = '') {
             const card  = document.getElementById(`day-card-${idx}`);
             const badge = document.getElementById(`badge-${idx}`);
             if (!card || !badge) return;
             card.className  = 'day-card';
             badge.className = 'status-badge';
+            badge.title = message || '';
             if (status === 'sending') {
                 card.classList.add('is-sending');
                 badge.classList.add('badge-sending');
@@ -426,7 +427,7 @@
             } else if (status === 'error') {
                 card.classList.add('is-error');
                 badge.classList.add('badge-error');
-                badge.innerHTML = '<i class="fas fa-times"></i> 오류';
+                badge.innerHTML = '<i class="fas fa-times"></i> 오류' + (message ? ` · ${escHtml(message).slice(0, 36)}` : '');
             }
         }
 
@@ -443,6 +444,7 @@
 
             let successCount = 0;
             let errorCount   = 0;
+            const errorMessages = [];
 
             for (let idx = 0; idx < parsedDataList.length; idx++) {
                 const data = parsedDataList[idx];
@@ -465,13 +467,17 @@
                         setDayStatus(idx, 'done');
                         successCount++;
                     } else {
-                        setDayStatus(idx, 'error');
+                        const msg = json.message || '서버 오류';
+                        setDayStatus(idx, 'error', msg);
                         errorCount++;
+                        errorMessages.push(`${idx + 1}번: ${msg}`);
                         console.error(`Day ${idx + 1} 서버 오류:`, json.message);
                     }
                 } catch (err) {
-                    setDayStatus(idx, 'error');
+                    const msg = err?.message || '전송 오류';
+                    setDayStatus(idx, 'error', msg);
                     errorCount++;
+                    errorMessages.push(`${idx + 1}번: ${msg}`);
                     console.error(`Day ${idx + 1} 전송 오류:`, err);
                 }
             }
@@ -482,7 +488,7 @@
                 gs.className = 'status show success';
                 sendBtn.innerHTML = '<i class="fas fa-check"></i> 전송 완료';
             } else {
-                gs.textContent = `${successCount}개 성공, ${errorCount}개 오류 발생`;
+                gs.textContent = `${successCount}개 성공, ${errorCount}개 오류 발생` + (errorMessages.length ? ` · ${errorMessages.join(' / ')}` : '');
                 gs.className = 'status show error';
                 sendBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 일부 오류 발생';
             }
