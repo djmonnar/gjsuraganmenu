@@ -433,6 +433,38 @@
 
         /* ── 전송 ── */
 
+        function stripJsonFence(text) {
+            return String(text || '')
+                .trim()
+                .replace(/^```(?:json)?\s*/i, '')
+                .replace(/\s*```$/i, '')
+                .trim();
+        }
+
+        function compactResponseText(text) {
+            return String(text || '')
+                .replace(/<[^>]+>/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .slice(0, 220);
+        }
+
+        async function readScriptJsonResponse(res) {
+            const raw = await res.text();
+            const cleaned = stripJsonFence(raw);
+            try {
+                return { ok: true, data: cleaned ? JSON.parse(cleaned) : {}, raw };
+            } catch (err) {
+                return {
+                    ok: false,
+                    data: null,
+                    raw,
+                    error: `응답 JSON 해석 실패: ${err.message}`,
+                    detail: compactResponseText(raw)
+                };
+            }
+        }
+
         async function sendAllToGoogleSheet() {
             if (parsedDataList.length === 0 || isSending) return;
             isSending = true;
@@ -462,16 +494,28 @@
 
                 try {
                     const res  = await fetch(SCRIPT_URL, { method: 'POST', body: fd });
-                    const json = await res.json();
+                    const parsed = await readScriptJsonResponse(res);
+                    if (!parsed.ok) {
+                        const msg = parsed.detail
+                            ? `${parsed.error} / 응답: ${parsed.detail}`
+                            : parsed.error;
+                        setDayStatus(idx, 'error', msg);
+                        errorCount++;
+                        errorMessages.push(`${idx + 1}번: ${msg}`);
+                        console.error(`Day ${idx + 1} 응답 파싱 오류:`, parsed.raw);
+                        continue;
+                    }
+
+                    const json = parsed.data || {};
                     if (json.status === 'success') {
                         setDayStatus(idx, 'done');
                         successCount++;
                     } else {
-                        const msg = json.message || '서버 오류';
+                        const msg = json.message || json.error || '서버 오류';
                         setDayStatus(idx, 'error', msg);
                         errorCount++;
                         errorMessages.push(`${idx + 1}번: ${msg}`);
-                        console.error(`Day ${idx + 1} 서버 오류:`, json.message);
+                        console.error(`Day ${idx + 1} 서버 오류:`, json);
                     }
                 } catch (err) {
                     const msg = err?.message || '전송 오류';
@@ -484,7 +528,7 @@
 
             const gs = document.getElementById('globalStatus');
             if (errorCount === 0) {
-                gs.textContent = `${successCount}개 모두 전송 완료! 구글 시트를 확인해보세요.`;
+                gs.textContent = `${successCount}개 전송 요청 완료! 노션/구글 시트 반영을 확인해주세요.`;
                 gs.className = 'status show success';
                 sendBtn.innerHTML = '<i class="fas fa-check"></i> 전송 완료';
             } else {
